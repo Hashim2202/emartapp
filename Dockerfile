@@ -1,14 +1,14 @@
-FROM node:14 AS ui-build
+FROM node:20 AS ui-build
 WORKDIR /usr/src/app
 COPY client/ ./client/
 RUN cd client && npm install && npm run build
 
-FROM node:14 AS server-build
+FROM node:20 AS server-build
 WORKDIR /usr/src/app
 COPY nodeapi/ ./nodeapi/
 RUN cd nodeapi && npm install
 
-FROM node:14
+FROM node:20
 WORKDIR /usr/src/app/
 COPY --from=server-build /usr/src/app/nodeapi/ ./
 COPY --from=ui-build /usr/src/app/client/dist ./client/dist
