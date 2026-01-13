@@ -1,14 +1,15 @@
-FROM openjdk:25 AS BUILD_IMAGE
-WORKDIR /usr/src/app/
-RUN apt update && apt install maven -y
-COPY ./ /usr/src/app/
-RUN mvn install -DskipTests
+# -------- BUILD STAGE --------
+FROM maven:3.9.9-eclipse-temurin-17 AS build
+WORKDIR /usr/src/app
 
-FROM openjdk:25
+COPY . .
+RUN mvn clean package -DskipTests
 
-WORKDIR /usr/src/app/
-COPY --from=BUILD_IMAGE /usr/src/app/target/book-work-0.0.1-SNAPSHOT.jar ./book-work-0.0.1.jar
+# -------- RUNTIME STAGE --------
+FROM eclipse-temurin:17-jre
+WORKDIR /usr/src/app
+
+COPY --from=build /usr/src/app/target/book-work-0.0.1-SNAPSHOT.jar book-work-0.0.1.jar
 
 EXPOSE 9000
-ENTRYPOINT ["java","-jar","book-work-0.0.1.jar"]
-# Test
+ENTRYPOINT ["java", "-jar", "book-work-0.0.1.jar"]
